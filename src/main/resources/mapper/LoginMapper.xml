@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.LoginMapper">
+
+    <select id="userLogin" resultType="java.lang.Long">
+        select user_id from user
+            where
+        user_name = #{userLoginDTO.userName} and user_password = #{userLoginDTO.userPassword}
+    </select>
+</mapper>
