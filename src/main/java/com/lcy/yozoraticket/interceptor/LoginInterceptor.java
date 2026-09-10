@@ -48,6 +48,9 @@ public class LoginInterceptor implements HandlerInterceptor {
         Long userId = ((Number) userObj).longValue();
         String sessionId = String.valueOf(sessionObj);
 
+        //将当前用户id存入线程
+        BaseContext.setCurrentId(userId);
+
         //获取当前用户最新的session
         String sessionIdNow = stringRedisTemplate.opsForValue().get(RedisConstant.LOGIN_SESSION_KEY + userId);
 

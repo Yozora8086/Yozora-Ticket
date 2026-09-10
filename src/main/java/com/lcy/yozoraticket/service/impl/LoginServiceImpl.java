@@ -31,17 +31,12 @@ public class LoginServiceImpl implements LoginService {
     public String login(UserLoginDTO userLoginDTO) {
         //查询当前用户id
         Long userId = loginMapper.userLogin(userLoginDTO);
-        //将当前用户id存入线程
-        BaseContext.setCurrentId(userId);
         //创建登录session
         String sessionId = UUID.randomUUID().toString();
         //生成jwt的token
         String token = jwtUtil.createToken(userId,sessionId);
         //redis创建当前登录用户session
         stringRedisTemplate.opsForValue().set(RedisConstant.LOGIN_SESSION_KEY + userId,sessionId,7, TimeUnit.DAYS);
-
-        //将当前用户id存入线程
-        BaseContext.setCurrentId(userId);
 
         return token;
     }

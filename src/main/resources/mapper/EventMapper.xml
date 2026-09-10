@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.EventMapper">
+
+    <select id="selectEventList" resultType="com.lcy.yozoraticket.vo.EventListVO">
+        select event_id,event_name,event_poster,event_genre,event_status from events
+        order by event_id limit #{offset},#{pageSize}
+
+    </select>
+</mapper>

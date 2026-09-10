@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.TicketTiersMapper">
+    <update id="buyTicketSuccess">
+        update ticket_tiers set ticket_permit = ticket_permit - #{ticketBuyDTO.count}
+        where
+        event_session_id = #{ticketBuyDTO.eventSessionId} and ticket_level = #{ticketBuyDTO.ticketLevel}
+    </update>
+
+    <select id="selectTicketPrice" resultType="java.lang.Integer">
+        select ticket_price from ticket_tiers where event_session_id = #{eventSessionId} and ticket_level = #{ticketLevel}
+    </select>
+</mapper>
