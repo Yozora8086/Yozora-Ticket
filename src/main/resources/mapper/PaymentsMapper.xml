@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.PaymentsMapper">
+
+    <insert id="insertPayment">
+        insert into payments
+          (order_id,payment_no,amount,status,create_pay_time)
+        values
+          (#{orderId},#{paymentNo},#{amount},#{status},#{createPayTime})
+    </insert>
+</mapper>

@@ -2,6 +2,7 @@ package com.lcy.yozoraticket.service;
 
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
+import com.lcy.yozoraticket.vo.OrderVO;
 
 public interface TicketBuyService {
     /**
@@ -10,4 +11,6 @@ public interface TicketBuyService {
      * @return
      */
     Order buyTicket(TicketBuyDTO ticketBuyDTO);
+
+
 }

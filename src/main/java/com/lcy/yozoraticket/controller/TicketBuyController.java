@@ -4,6 +4,7 @@ import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
 import com.lcy.yozoraticket.service.TicketBuyService;
 import com.lcy.yozoraticket.utils.Result;
+import com.lcy.yozoraticket.vo.OrderItemVO;
 import com.lcy.yozoraticket.vo.OrderVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -34,4 +35,7 @@ public class TicketBuyController {
 
         return Result.success(orderVO,"购买成功");
     }
+
+
+
 }

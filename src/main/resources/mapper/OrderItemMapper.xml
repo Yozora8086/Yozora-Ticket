@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.OrderItemMapper">
+
+
+    <insert id="insertOrderItem">
+        insert into order_items
+            (order_id,ticket_level,count,price,event_name,session_time,venue_name)
+        values
+            (#{orderId},#{ticketLevel},#{count},#{price},#{eventName},#{sessionTime},#{venueName})
+    </insert>
+    <select id="selectOrderId" resultType="java.lang.Long">
+        select oi.order_item_id from order_items oi left join orders o
+            on oi.order_id = o.order_id
+        where o.order_no = #{orderNo}
+    </select>
+</mapper>
