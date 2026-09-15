@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lcy.yozoraticket.mapper.TicketsMapper">
+
+    <insert id="insertTicket">
+        insert into tickets (order_item_id,ticket_code,status,created_time)
+        values
+        (#{orderItemId},#{ticketCode},#{status},#{createdTime})
+    </insert>
+</mapper>

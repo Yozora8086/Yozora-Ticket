@@ -16,12 +16,12 @@ public interface OrderMapper {
     void insert(Order order);
 
     /**
-     * 查询用户订单
-     * @param orderId
+     * 根据订单编号查询订单id
+     * @param orderNo
      * @return
      */
-    @Select("select * from orders where order_id = #{orderId}")
-    Order select(Long orderId);
+    @Select("select order_id from orders where order_no = #{orderNo}")
+    Long selectOrderId(String orderNo);
 
 
 }

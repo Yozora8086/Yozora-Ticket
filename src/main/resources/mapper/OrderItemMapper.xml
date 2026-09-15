@@ -10,8 +10,6 @@
             (#{orderId},#{ticketLevel},#{count},#{price},#{eventName},#{sessionTime},#{venueName})
     </insert>
     <select id="selectOrderId" resultType="java.lang.Long">
-        select oi.order_item_id from order_items oi left join orders o
-            on oi.order_id = o.order_id
-        where o.order_no = #{orderNo}
+       select order_item_id from order_items where order_id = #{orderId}
     </select>
 </mapper>

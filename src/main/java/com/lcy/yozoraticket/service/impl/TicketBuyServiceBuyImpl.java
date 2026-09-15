@@ -59,40 +59,10 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //支付倒计时
         order.setPayCloseTime(LocalDateTime.now().plusMinutes(15));
 
+        //数据库插入订单
         orderMapper.insert(order);
-
-        //查询  下单时的演出名称, 下单时的场次时间, 下单时的场馆名称
-        OrderItemQueryDTO orderItemQueryDTO = eventSessionsMapper.selectEventMsg(ticketBuyDTO.getEventSessionId());
-
-        System.err.println(orderItemQueryDTO);
-
-        //创建订单明细
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrderId(order.getOrderId());
-        orderItem.setTicketLevel(ticketLevel);
-        orderItem.setCount(ticketBuyDTO.getCount());
-        orderItem.setPrice(ticketPrice);
-        orderItem.setEventName(orderItemQueryDTO.getEventName());
-        orderItem.setSessionTime(orderItemQueryDTO.getStartTime());
-        orderItem.setVenueName(orderItemQueryDTO.getVenueName());
-
-        //插入订单明细
-        orderItemMapper.insertOrderItem(orderItem);
-
-        //创建支付记录对象
-        Payments payments = new Payments();
-
-        payments.setOrderId(order.getOrderId());
-        payments.setPaymentNo("P" + System.currentTimeMillis() + String.format("%08d", ThreadLocalRandom.current().nextInt(100_000_000)));
-        payments.setAmount(ticketPrice * ticketBuyDTO.getCount());
-        payments.setStatus((byte) 0);
-        payments.setCreatePayTime(LocalDateTime.now());
-
-        //数据库插入支付记录
-        paymentsMapper.insertPayment(payments);
-
-
         return order;
+
     }
 
 

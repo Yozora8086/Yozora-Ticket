@@ -15,8 +15,8 @@ public interface OrderItemMapper {
 
     /**
      * 查询订单详细id
-     * @param orderNo
+     * @param orderId
      * @return
      */
-    Long selectOrderId(String orderNo);
+    Long selectOrderId(Long OrderId);
 }
