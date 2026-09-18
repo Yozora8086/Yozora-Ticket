@@ -19,5 +19,11 @@ public interface TicketTiersMapper {
      * 用户购票
      * @param ticketBuyDTO
      */
-    void buyTicketSuccess(@Param("ticketBuyDTO") TicketBuyDTO ticketBuyDTO);
+    Integer buyTicketSuccess(@Param("ticketBuyDTO") TicketBuyDTO ticketBuyDTO);
+
+    /**
+     * 解锁被锁定的票
+     * @param ticketTotal
+     */
+    void updateUpdateLock(Long eventSessionId,Byte ticketLevel,Byte ticketTotal);
 }

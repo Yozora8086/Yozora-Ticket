@@ -5,8 +5,7 @@ import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.dto.query.EventSessionSellTimeQueryDTO;
 import com.lcy.yozoraticket.dto.query.OrderItemQueryDTO;
 import com.lcy.yozoraticket.entity.Order;
-import com.lcy.yozoraticket.entity.OrderItem;
-import com.lcy.yozoraticket.entity.Payments;
+import com.lcy.yozoraticket.exception.NotTicketException;
 import com.lcy.yozoraticket.exception.TicketIsNotSellException;
 import com.lcy.yozoraticket.mapper.*;
 import com.lcy.yozoraticket.service.TicketBuyService;
@@ -41,7 +40,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //用户购买的哪一场的票
         Long eventSessionId = ticketBuyDTO.getEventSessionId();
         //查询当前演出开售时间,并返回演出状态对象
-        EventSessionSellTimeQueryDTO sessionSellTimeQueryDTO = eventSessionsMapper.selectStartSellTime(eventSessionId);
+        EventSessionSellTimeQueryDTO sessionSellTimeQueryDTO = eventSessionsMapper.selectStartSellTime(eventSessionId,ticketLevel);
         //获取当前时间
         LocalDateTime now = LocalDateTime.now();
 
@@ -55,11 +54,20 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
             throw new TicketIsNotSellException("当前演出已取消，无法购买");
         }
 
+        //判断当前票仓是否有票
+        if (sessionSellTimeQueryDTO.getTicketPermit() < ticketBuyDTO.getCount()){
+            throw new NotTicketException();
+        }
+
         //查询用户购票的等级所对应的价格
         Integer ticketPrice = ticketTiersMapper.selectTicketPrice(ticketLevel,eventSessionId);
 
-        //购票，数据库票数减少
-        ticketTiersMapper.buyTicketSuccess(ticketBuyDTO);
+        //购票，数据库票数减少,返回数据库影响的行数
+        Integer rows = ticketTiersMapper.buyTicketSuccess(ticketBuyDTO);
+        if (rows == 0){
+            throw new TicketIsNotSellException("购票失败");
+        }
+
 
         //创建订单
         Order order = new Order();

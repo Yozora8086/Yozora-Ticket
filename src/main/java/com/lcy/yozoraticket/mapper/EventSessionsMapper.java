@@ -17,6 +17,5 @@ public interface EventSessionsMapper {
      * @param eventSessionId
      * @return
      */
-    @Select("SELECT sell_time,status FROM event_sessions WHERE event_session_id = #{eventSessionId}")
-    EventSessionSellTimeQueryDTO selectStartSellTime(Long eventSessionId);
+    EventSessionSellTimeQueryDTO selectStartSellTime(Long eventSessionId,Byte ticketLevel);
 }

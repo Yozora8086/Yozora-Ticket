@@ -9,4 +9,11 @@
             on es.event_id = e.event_id
         where  es.event_session_id = #{eventSessionId}
     </select>
+    <select id="selectStartSellTime" resultType="com.lcy.yozoraticket.dto.query.EventSessionSellTimeQueryDTO">
+        SELECT es.sell_time,es.status,tt.ticket_permit
+        FROM event_sessions es join ticket_tiers tt on
+            es.event_session_id = tt.event_session_id
+        where
+            tt.event_session_id = #{eventSessionId} and tt.ticket_level = #{ticketLevel}
+    </select>
 </mapper>

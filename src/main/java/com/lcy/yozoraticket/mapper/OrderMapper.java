@@ -1,10 +1,10 @@
 package com.lcy.yozoraticket.mapper;
 
 import com.lcy.yozoraticket.entity.Order;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface OrderMapper {
@@ -24,4 +24,15 @@ public interface OrderMapper {
     Long selectOrderId(String orderNo);
 
 
+    /**
+     * 查询订单表中所有超时的订单
+     * @return
+     */
+    List<Order> selectAllOrderTimeOut();
+
+    /**
+     * 修改当前订单的支付状态为超时
+     * @return 影响行数
+     */
+    Integer updateOrderStatus(Long orderId);
 }

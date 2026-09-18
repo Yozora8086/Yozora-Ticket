@@ -1,10 +1,7 @@
 package com.lcy.yozoraticket.handler;
 
 
-import com.lcy.yozoraticket.exception.LoginSessionErrorException;
-import com.lcy.yozoraticket.exception.NoLoginException;
-import com.lcy.yozoraticket.exception.TicketIsNotSellException;
-import com.lcy.yozoraticket.exception.UnauthorizedException;
+import com.lcy.yozoraticket.exception.*;
 import com.lcy.yozoraticket.utils.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,5 +48,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TicketIsNotSellException.class)
     public Result handleTicketIsNotSellException(TicketIsNotSellException ex){
         return Result.error(ex.getMessage());
+    }
+
+    /**
+     * 票库存不足异常
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(NotTicketException.class)
+    public Result handleNotTicketException(NotTicketException ex){
+        return Result.error("演出票剩余不足");
     }
 }

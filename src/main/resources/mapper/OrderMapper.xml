@@ -8,4 +8,14 @@
         (#{eventSessionId},#{orderNo},#{userId},#{ticketLevel},#{total},#{ticketTotal},#{status},#{payCloseTime})
     </insert>
 
+
+    <update id="updateOrderStatus">
+        update orders SET status = 3 where order_id = #{orderId}
+    </update>
+
+
+    <select id="selectAllOrderTimeOut" resultType="com.lcy.yozoraticket.entity.Order">
+        select * from orders where pay_close_time &lt;= now() and status = 0
+    </select>
+
 </mapper>

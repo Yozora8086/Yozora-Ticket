@@ -14,4 +14,6 @@ public class EventSessionSellTimeQueryDTO {
     private LocalDateTime sellTime;
     //当前演出场次状态 0 = 正常 1 = 已取消
     private Byte status;
+    //当前票等级剩余票数
+    private Integer ticketPermit;
 }
