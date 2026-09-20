@@ -10,53 +10,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     /**
-     * user未登录异常
+     * 通用业务异常类
      * @param ex
      * @return
      */
-    @ExceptionHandler(NoLoginException.class)
-    public Result handleNoLoginException(NoLoginException ex){
-        return Result.error("user当前未登录");
-    }
-
-    /**
-     * Token无效异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(UnauthorizedException.class)
-    public Result handleUnauthorizedException(UnauthorizedException ex){
-        return Result.error("Token无效");
-    }
-
-
-    /**
-     * 登录session不符异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(LoginSessionErrorException.class)
-    public Result handleLoginSessionErrorException(LoginSessionErrorException ex){
-        return Result.error("该账号已在其他设备登录");
-    }
-
-    /**
-     * 演出票未到发售时间异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(TicketIsNotSellException.class)
-    public Result handleTicketIsNotSellException(TicketIsNotSellException ex){
+    @ExceptionHandler(BusinessException.class)
+    public Result handleBusinessException(BusinessException ex){
         return Result.error(ex.getMessage());
-    }
-
-    /**
-     * 票库存不足异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(NotTicketException.class)
-    public Result handleNotTicketException(NotTicketException ex){
-        return Result.error("演出票剩余不足");
     }
 }

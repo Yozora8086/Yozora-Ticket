@@ -3,13 +3,11 @@ package com.lcy.yozoraticket.service.impl;
 import com.lcy.yozoraticket.context.BaseContext;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.dto.query.EventSessionSellTimeQueryDTO;
-import com.lcy.yozoraticket.dto.query.OrderItemQueryDTO;
 import com.lcy.yozoraticket.entity.Order;
-import com.lcy.yozoraticket.exception.NotTicketException;
-import com.lcy.yozoraticket.exception.TicketIsNotSellException;
+import com.lcy.yozoraticket.enums.ErrorCode;
+import com.lcy.yozoraticket.exception.BusinessException;
 import com.lcy.yozoraticket.mapper.*;
 import com.lcy.yozoraticket.service.TicketBuyService;
-import com.lcy.yozoraticket.vo.OrderVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,17 +44,17 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
 
         //判断当前演出是否可以购买
         if (now.isBefore(sessionSellTimeQueryDTO.getSellTime())) {
-            throw new TicketIsNotSellException("当前演出未达发售时间");
+            throw new BusinessException(ErrorCode.TICKET_TIME_NOT_SELL);
         }
 
         //判断当前演出的状态是否允许购买
         if (sessionSellTimeQueryDTO.getStatus() == (byte) 1){
-            throw new TicketIsNotSellException("当前演出已取消，无法购买");
+            throw new BusinessException(ErrorCode.TICKET_STATUS_NOT_SELL);
         }
 
         //判断当前票仓是否有票
         if (sessionSellTimeQueryDTO.getTicketPermit() < ticketBuyDTO.getCount()){
-            throw new NotTicketException();
+            throw new BusinessException(ErrorCode.NOT_TICKET);
         }
 
         //查询用户购票的等级所对应的价格
@@ -65,7 +63,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //购票，数据库票数减少,返回数据库影响的行数
         Integer rows = ticketTiersMapper.buyTicketSuccess(ticketBuyDTO);
         if (rows == 0){
-            throw new TicketIsNotSellException("购票失败");
+            throw new BusinessException(ErrorCode.TICKET_SELL_ERROR);
         }
 
 

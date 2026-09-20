@@ -2,8 +2,8 @@ package com.lcy.yozoraticket.interceptor;
 
 import com.lcy.yozoraticket.constant.RedisConstant;
 import com.lcy.yozoraticket.context.BaseContext;
-import com.lcy.yozoraticket.exception.LoginSessionErrorException;
-import com.lcy.yozoraticket.exception.NoLoginException;
+import com.lcy.yozoraticket.enums.ErrorCode;
+import com.lcy.yozoraticket.exception.BusinessException;
 import com.lcy.yozoraticket.utils.JWTUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         //判断token是否为空
         if (token == null || token.isBlank()){
-            throw new NoLoginException();
+            throw new BusinessException(ErrorCode.NO_LOGIN);
         }
 
         //token校验
@@ -56,7 +54,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         //判断是否相等，不等则代表当前账号已在其他地方登录
         if (!sessionIdNow.equals(sessionId)){
-            throw new LoginSessionErrorException();
+            throw new BusinessException(ErrorCode.LOGIN_SESSION_ERROR);
         }
 
 
