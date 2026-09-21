@@ -6,4 +6,10 @@ public interface TicketService {
      * @param orderNo
      */
     void getTicket(String orderNo);
+
+    /**
+     * 核销演出电子票
+     * @param orderNo
+     */
+    void useTicket(String orderNo);
 }

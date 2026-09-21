@@ -7,6 +7,7 @@ import com.lcy.yozoraticket.entity.Order;
 import com.lcy.yozoraticket.enums.ErrorCode;
 import com.lcy.yozoraticket.exception.BusinessException;
 import com.lcy.yozoraticket.mapper.*;
+import com.lcy.yozoraticket.service.OrderTimeOutService;
 import com.lcy.yozoraticket.service.TicketBuyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     private final OrderItemMapper orderItemMapper;
     private final EventSessionsMapper eventSessionsMapper;
     private final PaymentsMapper paymentsMapper;
+    private final OrderTimeOutService orderTimeOutService;
 
     /**
      * 用户购票
@@ -67,6 +69,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         }
 
 
+
         //创建订单
         Order order = new Order();
         //生成订单号(时间戳加8位随机数)
@@ -87,5 +90,66 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
 
     }
 
+    /**
+     * 用户取消订单
+     * @param orderNo
+     */
+    @Transactional
+    @Override
+    public void backTicket(String orderNo) {
+        //初始化状态值为超时
+        Byte orderStatus = 2;
+        //初始化状态值为已取消
+        Byte paymentStatus = 2;
 
+        //获取当前用户id
+        Long userId = BaseContext.getCurrentId();
+
+        //根据订单号查询订单
+        Order order = orderMapper.selectOrderByOrderNo(orderNo,userId);
+        //取消订单
+        orderMapper.updateOrderStatus(order.getOrderId(),orderStatus);
+        //获取当前订单买票数量
+        Byte ticketTotal = order.getTicketTotal();
+        //释放库存
+        ticketTiersMapper.updateUpdateLock(
+                order.getEventSessionId(),
+                order.getTicketLevel(),
+                ticketTotal
+        );
+
+        //数据库修改支付记录状态 设置状态已取消
+        paymentsMapper.updateStatus(order.getOrderId(),paymentStatus);
+    }
+
+    /**
+     * 用户提交购票订单
+     * @param orderNo
+     */
+    @Override
+    public void buyCommitTicket(String orderNo) {
+        //初始化状态值为已支付
+        Byte orderStatus = 1;
+        //初始化状态值为支付成功
+        Byte paymentStatus = 1;
+
+        //获取当前用户id
+        Long userId = BaseContext.getCurrentId();
+
+        //根据订单号查询订单
+        Order order = orderMapper.selectOrderByOrderNo(orderNo,userId);
+        //支付订单
+        orderMapper.updateOrderStatus(order.getOrderId(),orderStatus);
+        //获取当前订单买票数量
+        Byte ticketTotal = order.getTicketTotal();
+        //释放库存
+        ticketTiersMapper.updateUpdateCommitLock(
+                order.getEventSessionId(),
+                order.getTicketLevel(),
+                ticketTotal
+        );
+
+        //数据库修改支付记录状态 设置状态已支付成功
+        paymentsMapper.updateStatusCommit(order.getOrderId(),paymentStatus,(byte) 0);
+    }
 }

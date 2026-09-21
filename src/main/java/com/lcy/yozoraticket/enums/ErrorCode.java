@@ -18,7 +18,9 @@ public enum ErrorCode {
 
     TICKET_STATUS_NOT_SELL(2003,"当前演出已取消，无法购买",HttpStatus.CONFLICT),
 
-    TICKET_SELL_ERROR(2004,"购票失败",HttpStatus.CONFLICT);
+    TICKET_SELL_ERROR(2004,"购票失败",HttpStatus.CONFLICT),
+
+    TICKET_NOT_YOU(3001,"当前电子票归属用户错误",HttpStatus.CONFLICT);
 
 
     private final Integer code;

@@ -20,13 +20,15 @@ public class TicketBuyController {
 
     private final TicketSuperService ticketSuperService;
 
+    private final TicketBuyService ticketBuyService;
+
     /**
      * 用户购票
      * @param ticketBuyDTO
      * @return
      */
     @PutMapping("/ticketBuy")
-    public Result<OrderVO> tickBuy(@RequestBody TicketBuyDTO ticketBuyDTO){
+    public Result<OrderVO> ticketBuy(@RequestBody TicketBuyDTO ticketBuyDTO){
 
         //调用购票业务流程Service
         Order order = ticketSuperService.buyTicket(ticketBuyDTO);
@@ -40,6 +42,28 @@ public class TicketBuyController {
                 .build();
 
         return Result.success(orderVO,"购买成功");
+    }
+
+    /**
+     * 用户取消订单
+     * @param orderNo
+     * @return
+     */
+    @PutMapping("/ticketBack")
+    public Result ticketBack(@RequestParam String orderNo){
+        ticketBuyService.backTicket(orderNo);
+        return Result.success("退票成功");
+    }
+
+    /**
+     * 用户提交购票订单
+     * @param orderNo
+     * @return
+     */
+    @PutMapping("/commitOrder")
+    public Result ticketBuyCommit(@RequestParam String orderNo){
+        ticketBuyService.buyCommitTicket(orderNo);
+        return Result.success("支付成功");
     }
 
 

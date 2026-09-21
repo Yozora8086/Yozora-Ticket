@@ -26,4 +26,12 @@ public interface TicketTiersMapper {
      * @param ticketTotal
      */
     void updateUpdateLock(Long eventSessionId,Byte ticketLevel,Byte ticketTotal);
+
+    /**
+     * 解锁被锁定的票(支付成功)
+     * @param eventSessionId
+     * @param ticketLevel
+     * @param ticketTotal
+     */
+    void updateUpdateCommitLock(Long eventSessionId, Byte ticketLevel, Byte ticketTotal);
 }

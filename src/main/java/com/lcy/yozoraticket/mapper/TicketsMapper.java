@@ -10,4 +10,10 @@ public interface TicketsMapper {
      * @param ticket
      */
     void insertTicket(Ticket ticket);
+
+    /**
+     * 修改电子票核销状态 修改为已核销
+     * @param ticketCode
+     */
+    void updateStatus(String ticketCode);
 }

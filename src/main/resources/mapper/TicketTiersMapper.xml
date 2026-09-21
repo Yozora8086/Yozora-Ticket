@@ -22,6 +22,15 @@
             and ticket_lock >= #{ticketTotal}
     </update>
 
+    <update id="updateUpdateCommitLock">
+        UPDATE ticket_tiers SET
+            ticket_lock = ticket_lock - #{ticketTotal}
+        WHERE
+            event_session_id = #{eventSessionId}
+          and ticket_level = #{ticketLevel}
+          and ticket_lock >= #{ticketTotal}
+    </update>
+
     <select id="selectTicketPrice" resultType="java.lang.Integer">
         select ticket_price from ticket_tiers where event_session_id = #{eventSessionId} and ticket_level = #{ticketLevel}
     </select>

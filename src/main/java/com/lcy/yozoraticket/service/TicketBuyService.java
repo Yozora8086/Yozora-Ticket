@@ -13,4 +13,15 @@ public interface TicketBuyService {
     Order buyTicket(TicketBuyDTO ticketBuyDTO);
 
 
+    /**
+     * 用户取消订单
+     * @param orderNo
+     */
+    void backTicket(String orderNo);
+
+    /**
+     * 用户提交购票订单
+     * @param orderNo
+     */
+    void buyCommitTicket(String orderNo);
 }

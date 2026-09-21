@@ -8,4 +8,13 @@
         values
           (#{orderId},#{paymentNo},#{amount},#{status},#{createPayTime})
     </insert>
+
+
+    <update id="updateStatus">
+        UPDATE payments SET status = #{paymentStatus} WHERE order_id = #{orderId} AND status != 1
+    </update>
+
+    <update id="updateStatusCommit">
+        UPDATE payments SET status = #{paymentStatus} WHERE order_id = #{orderId} AND status = #{status}
+    </update>
 </mapper>

@@ -10,12 +10,22 @@
 
 
     <update id="updateOrderStatus">
-        update orders SET status = 3 where order_id = #{orderId}
+        update orders SET status = #{status} where order_id = #{orderId}
     </update>
 
 
     <select id="selectAllOrderTimeOut" resultType="com.lcy.yozoraticket.entity.Order">
         select * from orders where pay_close_time &lt;= now() and status = 0
+    </select>
+
+    <select id="selectOrderByTicketCode" resultType="java.lang.Long">
+        select o.user_id from tickets t
+            join order_items oi
+                on t.order_item_id = oi.order_item_id
+            join orders o
+                on o.order_id = oi.order_id
+            where
+                t.ticket_code = #{ticketCode}
     </select>
 
 </mapper>

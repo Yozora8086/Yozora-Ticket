@@ -7,4 +7,9 @@
         values
         (#{orderItemId},#{ticketCode},#{status},#{createdTime})
     </insert>
+
+
+    <update id="updateStatus">
+        UPDATE tickets SET status = 1,verified_time = now() WHERE ticket_code = #{ticketCode}
+    </update>
 </mapper>
