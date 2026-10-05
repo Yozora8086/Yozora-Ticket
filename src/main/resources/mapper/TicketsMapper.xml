@@ -12,4 +12,25 @@
     <update id="updateStatus">
         UPDATE tickets SET status = 1,verified_time = now() WHERE ticket_code = #{ticketCode}
     </update>
+
+    <update id="updateTimeOutStatus">
+        UPDATE tickets SET status = 2
+           WHERE ticket_id IN
+           <foreach collection="tickets"
+                    item="ticket"
+                    open="("
+                    separator=","
+                    close=")">
+           #{ticket.ticketId}
+           </foreach>
+           AND status = 0
+    </update>
+
+    <select id="selectTimeOutTicket" resultType="com.lcy.yozoraticket.entity.Ticket">
+        select t.* from tickets t
+          join order_items oi
+          on t.order_item_id = oi.order_item_id
+          where oi.session_time &lt; now() + interval 15 minute
+          and t.status != 1
+    </select>
 </mapper>

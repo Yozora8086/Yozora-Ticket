@@ -1,13 +1,11 @@
 package com.lcy.yozoraticket.controller;
 
+import com.lcy.yozoraticket.dto.RegisterDTO;
 import com.lcy.yozoraticket.dto.UserLoginDTO;
 import com.lcy.yozoraticket.service.LoginService;
 import com.lcy.yozoraticket.utils.Result;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("yozora/user")
@@ -26,5 +24,11 @@ public class LoginController {
          String token = loginService.login(userLoginDTO);
 
          return Result.success(token,"登录成功");
+    }
+
+    @PostMapping("register")
+    public Result register(@RequestBody RegisterDTO registerDTO){
+        loginService.register(registerDTO);
+        return Result.success("注册成功");
     }
 }

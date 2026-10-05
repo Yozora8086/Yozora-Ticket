@@ -2,6 +2,7 @@ package com.lcy.yozoraticket.service.impl;
 
 import com.lcy.yozoraticket.constant.RedisConstant;
 import com.lcy.yozoraticket.context.BaseContext;
+import com.lcy.yozoraticket.dto.RegisterDTO;
 import com.lcy.yozoraticket.dto.UserLoginDTO;
 import com.lcy.yozoraticket.mapper.LoginMapper;
 import com.lcy.yozoraticket.service.LoginService;
@@ -39,5 +40,15 @@ public class LoginServiceImpl implements LoginService {
         stringRedisTemplate.opsForValue().set(RedisConstant.LOGIN_SESSION_KEY + userId,sessionId,7, TimeUnit.DAYS);
 
         return token;
+    }
+
+    /**
+     * 用户注册
+     * @param registerDTO
+     */
+    @Override
+    public void register(RegisterDTO registerDTO) {
+        //将注册用户的信息插入数据库
+        loginMapper.register(registerDTO);
     }
 }

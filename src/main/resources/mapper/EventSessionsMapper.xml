@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lcy.yozoraticket.mapper.EventSessionsMapper">
+    <insert id="addEventSessionList">
+        INSERT INTO event_sessions (event_id,venue_id,start_time,sell_time,status)
+        values
+            <foreach collection="eventSessionsDTOList" item="item" separator=",">
+                (#{item.eventId},#{item.venueId},#{item.startTime},#{item.sellTime},0)
+            </foreach>
+    </insert>
 
     <select id="selectEventMsg" resultType="com.lcy.yozoraticket.dto.query.OrderItemQueryDTO">
         select v.venue_name,es.start_time,e.event_name from event_sessions es left join venues v

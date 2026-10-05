@@ -3,6 +3,8 @@ package com.lcy.yozoraticket.mapper;
 import com.lcy.yozoraticket.entity.Ticket;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface TicketsMapper {
     /**
@@ -16,4 +18,17 @@ public interface TicketsMapper {
      * @param ticketCode
      */
     void updateStatus(String ticketCode);
+
+    /**
+     * 查询出电子票已到期但未核销的电子票
+     * @return
+     */
+    List<Ticket> selectTimeOutTicket();
+
+    /**
+     * 修改
+     * @param tickets
+     * @return
+     */
+    Integer updateTimeOutStatus(List<Ticket> tickets);
 }
