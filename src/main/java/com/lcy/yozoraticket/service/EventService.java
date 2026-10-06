@@ -1,6 +1,7 @@
 package com.lcy.yozoraticket.service;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.vo.EventListVO;
 
 import java.util.List;
@@ -20,4 +21,10 @@ public interface EventService {
      * @param addEventDTO
      */
     void addEvent(AddEventDTO addEventDTO);
+
+    /**
+     * 增某一演出下的票档
+     * @param ticketTiersDTOList
+     */
+    void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList);
 }

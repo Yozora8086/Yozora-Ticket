@@ -1,8 +1,11 @@
 package com.lcy.yozoraticket.mapper;
 
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
+import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface TicketTiersMapper {
@@ -34,4 +37,10 @@ public interface TicketTiersMapper {
      * @param ticketTotal
      */
     void updateUpdateCommitLock(Long eventSessionId, Byte ticketLevel, Byte ticketTotal);
+
+    /**
+     * 增某一演出下的票档
+     * @param ticketTiersDTOList
+     */
+    void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList);
 }

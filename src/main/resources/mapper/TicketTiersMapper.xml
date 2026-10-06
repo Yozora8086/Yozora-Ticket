@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lcy.yozoraticket.mapper.TicketTiersMapper">
+    <insert id="addTicketLevel">
+        INSERT INTO ticket_tiers (event_session_id,ticket_level,ticket_price,ticket_all,ticket_permit,ticket_lock)
+        VALUES
+            <foreach collection="ticketTiersDTOList" item="item" separator=",">
+                (#{item.eventSessionId},#{item.ticketLevel},#{item.ticketPrice},#{item.ticketAll},#{item.ticketPermit},0)
+            </foreach>
+    </insert>
     <update id="buyTicketSuccess">
         update ticket_tiers set
             ticket_permit = ticket_permit - #{ticketBuyDTO.count},

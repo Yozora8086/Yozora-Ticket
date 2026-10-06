@@ -1,6 +1,7 @@
 package com.lcy.yozoraticket.controller;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.utils.Result;
 import com.lcy.yozoraticket.vo.EventListVO;
@@ -37,5 +38,16 @@ public class EventController {
     public Result addEvent(@RequestBody AddEventDTO addEventDTO){
         eventService.addEvent(addEventDTO);
         return Result.success("新增演出成功");
+    }
+
+    /**
+     * 新增某一演出下的票档
+     * @param ticketTiersDTOList
+     * @return
+     */
+    @PostMapping("/addTicketLevel")
+    public Result addTicketLevel(@RequestBody List<TicketTiersDTO> ticketTiersDTOList){
+        eventService.addTicketLevel(ticketTiersDTOList);
+        return Result.success("新增票档成功");
     }
 }

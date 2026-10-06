@@ -2,8 +2,10 @@ package com.lcy.yozoraticket.service.impl;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
 import com.lcy.yozoraticket.dto.EventSessionsDTO;
+import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.mapper.EventMapper;
 import com.lcy.yozoraticket.mapper.EventSessionsMapper;
+import com.lcy.yozoraticket.mapper.TicketTiersMapper;
 import com.lcy.yozoraticket.mapper.VenueMapper;
 import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.vo.EventListVO;
@@ -20,6 +22,7 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final VenueMapper venueMapper;
     private final EventSessionsMapper eventSessionsMapper;
+    private final TicketTiersMapper ticketTiersMapper;
 
     /**
      * 分页查询演出
@@ -56,5 +59,15 @@ public class EventServiceImpl implements EventService {
         //数据库场次新增
         eventSessionsMapper.addEventSessionList(addEventDTO.getEventSessionsDTOList());
 
+    }
+
+
+    /**
+     * 增某一演出下的票档
+     * @param ticketTiersDTOList
+     */
+    @Override
+    public void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList) {
+        ticketTiersMapper.addTicketLevel(ticketTiersDTOList);
     }
 }
