@@ -3,6 +3,7 @@ package com.lcy.yozoraticket.service;
 import com.lcy.yozoraticket.dto.AddEventDTO;
 import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.vo.EventListVO;
+import com.lcy.yozoraticket.vo.EventVO;
 
 import java.util.List;
 
@@ -27,4 +28,17 @@ public interface EventService {
      * @param ticketTiersDTOList
      */
     void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList);
+
+    /**
+     * 删除演出
+     * @param eventId
+     */
+    void deleteEvent(Long eventId);
+
+    /**
+     * 查看演出详情
+     * @param eventId
+     * @return
+     */
+    EventVO getEventDetail(Long eventId);
 }

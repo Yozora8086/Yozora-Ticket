@@ -43,4 +43,10 @@ public interface TicketTiersMapper {
      * @param ticketTiersDTOList
      */
     void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList);
+
+    /**
+     *  删除演出下所属的演出场次下属的所有票档
+     * @param eventSessionList
+     */
+    void deleteByEventSessionId(List<Long> eventSessionList);
 }

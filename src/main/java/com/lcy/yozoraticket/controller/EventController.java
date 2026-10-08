@@ -5,6 +5,7 @@ import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.utils.Result;
 import com.lcy.yozoraticket.vo.EventListVO;
+import com.lcy.yozoraticket.vo.EventVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,5 +50,27 @@ public class EventController {
     public Result addTicketLevel(@RequestBody List<TicketTiersDTO> ticketTiersDTOList){
         eventService.addTicketLevel(ticketTiersDTOList);
         return Result.success("新增票档成功");
+    }
+
+    /**
+     * 删除演出
+     * @param eventId
+     * @return
+     */
+    @DeleteMapping("/deleteEvent")
+    public Result deleteEvent(@RequestParam Long eventId){
+        eventService.deleteEvent(eventId);
+        return Result.success("删除成功");
+    }
+
+    /**
+     * 查看演出详情
+     * @param eventId
+     * @return
+     */
+    @GetMapping("/eventDetail")
+    public Result<EventVO> eventDetail(@RequestParam Long eventId){
+       EventVO eventVO = eventService.getEventDetail(eventId);
+       return Result.success(eventVO,"查询成功");
     }
 }

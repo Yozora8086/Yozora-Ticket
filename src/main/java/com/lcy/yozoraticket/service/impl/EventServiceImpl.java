@@ -9,6 +9,7 @@ import com.lcy.yozoraticket.mapper.TicketTiersMapper;
 import com.lcy.yozoraticket.mapper.VenueMapper;
 import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.vo.EventListVO;
+import com.lcy.yozoraticket.vo.EventVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,5 +70,37 @@ public class EventServiceImpl implements EventService {
     @Override
     public void addTicketLevel(List<TicketTiersDTO> ticketTiersDTOList) {
         ticketTiersMapper.addTicketLevel(ticketTiersDTOList);
+    }
+
+
+    /**
+     * 删除演出
+     * @param eventId
+     */
+    @Override
+    @Transactional
+    public void deleteEvent(Long eventId) {
+        //获取当前演出下的所有演出场次的id
+        List<Long> eventSessionList = eventSessionsMapper.getIdByEventIds(eventId);
+
+        //删除演出下所属的演出场次下属的所有票档
+        ticketTiersMapper.deleteByEventSessionId(eventSessionList);
+
+        //删除演出下所属的演出场次
+        eventSessionsMapper.deleteByEventId(eventId);
+
+        //删除演出
+        eventMapper.deleteEventById(eventId);
+    }
+
+    /**
+     * 查看演出详情
+     * @param eventId
+     * @return
+     */
+    @Override
+    public EventVO getEventDetail(Long eventId) {
+        EventVO eventVO = eventMapper.selectEventDetail(eventId);
+        return eventVO;
     }
 }

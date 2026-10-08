@@ -27,4 +27,17 @@ public interface EventSessionsMapper {
      * @param eventSessionsDTOList
      */
     void addEventSessionList(List<EventSessionsDTO> eventSessionsDTOList);
+
+    /**
+     * 获取当前演出下的所有演出场次的id
+     * @param eventId
+     * @return
+     */
+    List<Long> getIdByEventIds(Long eventId);
+
+    /**
+     * 删除演出下所属的演出场次
+     * @param eventId
+     */
+    void deleteByEventId(Long eventId);
 }

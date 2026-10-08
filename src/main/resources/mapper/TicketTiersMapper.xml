@@ -38,6 +38,14 @@
           and ticket_lock >= #{ticketTotal}
     </update>
 
+    <delete id="deleteByEventSessionId">
+        DELETE FROM ticket_tiers
+        WHERE event_session_id in
+        <foreach collection="eventSessionList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
     <select id="selectTicketPrice" resultType="java.lang.Integer">
         select ticket_price from ticket_tiers where event_session_id = #{eventSessionId} and ticket_level = #{ticketLevel}
     </select>

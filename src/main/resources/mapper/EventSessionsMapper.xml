@@ -9,6 +9,11 @@
             </foreach>
     </insert>
 
+    <delete id="deleteByEventId">
+        DELETE FROM event_sessions
+        WHERE event_id = #{eventId}
+    </delete>
+
     <select id="selectEventMsg" resultType="com.lcy.yozoraticket.dto.query.OrderItemQueryDTO">
         select v.venue_name,es.start_time,e.event_name from event_sessions es left join venues v
             on es.venue_id = v.venue_id
@@ -22,5 +27,10 @@
             es.event_session_id = tt.event_session_id
         where
             tt.event_session_id = #{eventSessionId} and tt.ticket_level = #{ticketLevel}
+    </select>
+
+    <select id="getIdByEventIds" resultType="java.lang.Long">
+        SELECT event_session_id FROM event_sessions
+        WHERE event_id = #{eventId}
     </select>
 </mapper>

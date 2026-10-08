@@ -7,9 +7,80 @@
             (#{eventName},#{eventIntroduction},#{eventPoster},#{eventGenre},0)
     </insert>
 
+    <delete id="deleteEventById">
+        DELETE FROM events
+        WHERE event_id = #{eventId}
+    </delete>
+
     <select id="selectEventList" resultType="com.lcy.yozoraticket.vo.EventListVO">
         select event_id,event_name,event_poster,event_genre,event_status from events
         order by event_id limit #{offset},#{pageSize}
 
+    </select>
+
+    <resultMap id="getEventDetail" type="com.lcy.yozoraticket.vo.EventVO">
+        <id property="eventId" column="event_id"/>
+        <result property="eventName" column="event_name"/>
+        <result property="eventIntroduction" column="event_introduction"/>
+        <result property="eventPoster" column="event_poster"/>
+        <result property="eventGenre" column="event_genre"/>
+        <result property="eventStatus" column="event_status"/>
+
+        <collection property="eventSessionsVOList" ofType="com.lcy.yozoraticket.vo.EventSessionsVO">
+            <id property="eventSessionId" column="event_session_id"/>
+            <result property="eventId" column="event_id"/>
+            <result property="venueId" column="venue_id"/>
+            <result property="startTime" column="start_time"/>
+            <result property="sellTime" column="sell_time"/>
+
+            <association property="venueVO" javaType="com.lcy.yozoraticket.vo.VenueVO">
+                <id property="venueId" column="venue_id"/>
+                <result property="venueName" column="venue_name"/>
+                <result property="venueCity" column="venue_city"/>
+                <result property="venueAddress" column="venue_address"/>
+            </association>
+
+            <collection property="ticketTiersVOList" ofType="com.lcy.yozoraticket.vo.TicketTiersVO">
+                <id property="ticketTiersId" column="ticket_tiers_id"/>
+                <result property="eventSessionId" column="event_session_id"/>
+                <result property="ticketLevel" column="ticket_level"/>
+                <result property="ticketPrice" column="ticket_price"/>
+                <result property="ticketPermit" column="ticket_permit"/>
+            </collection>
+         </collection>
+    </resultMap>
+
+    <select id="selectEventDetail" resultMap="getEventDetail">
+        SELECT
+            e.event_id,
+            e.event_name,
+            e.event_introduction,
+            e.event_poster,
+            e.event_genre,
+            e.event_status,
+
+            es.event_session_id,
+            es.start_time,
+            es.sell_time,
+            es.venue_id,
+
+            v.venue_id,
+            v.venue_name,
+            v.venue_city,
+            v.venue_address,
+
+            tt.ticket_tiers_id,
+            tt.ticket_level,
+            tt.ticket_price,
+            tt.ticket_permit
+
+        FROM events e
+                 LEFT JOIN event_sessions es
+                           ON e.event_id = es.event_id
+                 LEFT JOIN venues v
+                           ON es.venue_id = v.venue_id
+                 LEFT JOIN ticket_tiers tt
+                           ON es.event_session_id = tt.event_session_id
+        WHERE e.event_id = #{eventId};
     </select>
 </mapper>
