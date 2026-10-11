@@ -1,6 +1,7 @@
 package com.lcy.yozoraticket.service.impl;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.EventDTO;
 import com.lcy.yozoraticket.dto.EventSessionsDTO;
 import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.mapper.EventMapper;
@@ -102,5 +103,14 @@ public class EventServiceImpl implements EventService {
     public EventVO getEventDetail(Long eventId) {
         EventVO eventVO = eventMapper.selectEventDetail(eventId);
         return eventVO;
+    }
+
+    /**
+     * 修改演出信息
+     * @param eventDTO
+     */
+    @Override
+    public void updateEvent(EventDTO eventDTO) {
+        eventMapper.updateEvent(eventDTO);
     }
 }

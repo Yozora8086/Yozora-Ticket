@@ -6,6 +6,27 @@
         VALUES
             (#{eventName},#{eventIntroduction},#{eventPoster},#{eventGenre},0)
     </insert>
+    <update id="updateEvent">
+        UPDATE events
+            <set>
+                <if test="eventDTO.getEventName() != null">
+                     event_name = #{eventDTO.eventName},
+                </if>
+                <if test="eventDTO.getEventIntroduction() != null">
+                     event_introduction = #{eventDTO.eventIntroduction},
+                </if>
+                <if test="eventDTO.getEventPoster() != null">
+                    event_poster = #{eventDTO.eventPoster},
+                </if>
+                <if test="eventDTO.eventGenre != null">
+                    event_genre = #{eventDTO.eventGenre},
+                </if>
+                <if test="eventDTO.getEventStatus() != null">
+                    event_status = #{eventDTO.eventStatus}
+                </if>
+            </set>
+        WHERE event_id = #{eventDTO.eventId}
+    </update>
 
     <delete id="deleteEventById">
         DELETE FROM events

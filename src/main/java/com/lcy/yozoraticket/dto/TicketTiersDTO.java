@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TicketTiersDTO {
+    //票等级Id
+    private Long ticketTierId;
     //演出场次id
     private Long eventSessionId;
     //票等级

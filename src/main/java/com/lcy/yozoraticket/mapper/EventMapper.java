@@ -1,9 +1,11 @@
 package com.lcy.yozoraticket.mapper;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.EventDTO;
 import com.lcy.yozoraticket.vo.EventListVO;
 import com.lcy.yozoraticket.vo.EventVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -35,4 +37,10 @@ public interface EventMapper {
      * @return
      */
     EventVO selectEventDetail(Long eventId);
+
+    /**
+     * 修改演出信息
+     * @param eventDTO
+     */
+    void updateEvent(@Param("eventDTO") EventDTO eventDTO);
 }

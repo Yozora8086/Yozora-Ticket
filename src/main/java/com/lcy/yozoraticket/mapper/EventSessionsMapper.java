@@ -40,4 +40,10 @@ public interface EventSessionsMapper {
      * @param eventId
      */
     void deleteByEventId(Long eventId);
+
+    /**
+     * 修改演出场次信息
+     * @param eventSessionsDTO
+     */
+    void updateEventSession(EventSessionsDTO eventSessionsDTO);
 }

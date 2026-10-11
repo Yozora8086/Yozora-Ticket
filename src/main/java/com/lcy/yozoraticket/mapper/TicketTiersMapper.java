@@ -49,4 +49,10 @@ public interface TicketTiersMapper {
      * @param eventSessionList
      */
     void deleteByEventSessionId(List<Long> eventSessionList);
+
+    /**
+     * 修改票等级的数据
+     * @param ticketTiersDTOList
+     */
+    void updateTicketTier(List<TicketTiersDTO> ticketTiersDTOList);
 }

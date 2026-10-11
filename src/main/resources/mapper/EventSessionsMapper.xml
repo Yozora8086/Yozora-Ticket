@@ -9,6 +9,25 @@
             </foreach>
     </insert>
 
+    <update id="updateEventSession">
+        UPDATE event_sessions
+        <set>
+            <if test="venueId != null">
+                venue_id = #{venueId},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="sellTime != null">
+                sell_time = #{sellTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE event_session_id = #{eventSessionId}
+    </update>
+
     <delete id="deleteByEventId">
         DELETE FROM event_sessions
         WHERE event_id = #{eventId}

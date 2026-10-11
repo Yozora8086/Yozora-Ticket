@@ -1,6 +1,7 @@
 package com.lcy.yozoraticket.service;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.EventDTO;
 import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.vo.EventListVO;
 import com.lcy.yozoraticket.vo.EventVO;
@@ -41,4 +42,10 @@ public interface EventService {
      * @return
      */
     EventVO getEventDetail(Long eventId);
+
+    /**
+     * 修改演出信息
+     * @param eventDTO
+     */
+    void updateEvent(EventDTO eventDTO);
 }

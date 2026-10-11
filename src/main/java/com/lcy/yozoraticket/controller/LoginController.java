@@ -26,6 +26,11 @@ public class LoginController {
          return Result.success(token,"登录成功");
     }
 
+    /**
+     * 注册账户
+     * @param registerDTO
+     * @return
+     */
     @PostMapping("register")
     public Result register(@RequestBody RegisterDTO registerDTO){
         loginService.register(registerDTO);

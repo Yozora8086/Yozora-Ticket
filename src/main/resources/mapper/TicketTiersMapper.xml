@@ -38,6 +38,21 @@
           and ticket_lock >= #{ticketTotal}
     </update>
 
+    <update id="updateTicketTier">
+        <foreach collection="ticketTiersDTOList" item="item" separator=";">
+            UPDATE ticket_tiers
+            <set>
+                <if test="item.ticketPrice != null">
+                    ticket_price = #{item.ticketPrice}
+                </if>
+                <if test="item.ticketAll != null">
+                    ticket_all = #{item.ticketAll}
+                </if>
+            </set>
+            WHERE ticket_tiers_id = #{item.ticketTierId}
+        </foreach>
+    </update>
+
     <delete id="deleteByEventSessionId">
         DELETE FROM ticket_tiers
         WHERE event_session_id in

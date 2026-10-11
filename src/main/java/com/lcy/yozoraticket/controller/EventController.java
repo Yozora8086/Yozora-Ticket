@@ -1,6 +1,7 @@
 package com.lcy.yozoraticket.controller;
 
 import com.lcy.yozoraticket.dto.AddEventDTO;
+import com.lcy.yozoraticket.dto.EventDTO;
 import com.lcy.yozoraticket.dto.TicketTiersDTO;
 import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.utils.Result;
@@ -72,5 +73,16 @@ public class EventController {
     public Result<EventVO> eventDetail(@RequestParam Long eventId){
        EventVO eventVO = eventService.getEventDetail(eventId);
        return Result.success(eventVO,"查询成功");
+    }
+
+    /**
+     * 修改演出信息
+     * @param eventDTO
+     * @return
+     */
+    @PatchMapping("/updateEvent")
+    public Result updateEvent(@RequestBody EventDTO eventDTO){
+        eventService.updateEvent(eventDTO);
+        return Result.success("修改成功");
     }
 }

@@ -17,5 +17,6 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # ?? SQL
     map-underscore-to-camel-case: true #??????????
 
+
 jwt:
   secretKey: ${JWT_SECRET_KEY}
