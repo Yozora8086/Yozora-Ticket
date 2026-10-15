@@ -1,5 +1,8 @@
 package com.lcy.yozoraticket.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lcy.yozoraticket.constant.RedisConstant;
 import com.lcy.yozoraticket.dto.AddEventDTO;
 import com.lcy.yozoraticket.dto.EventDTO;
 import com.lcy.yozoraticket.dto.EventSessionsDTO;
@@ -12,6 +15,7 @@ import com.lcy.yozoraticket.service.EventService;
 import com.lcy.yozoraticket.vo.EventListVO;
 import com.lcy.yozoraticket.vo.EventVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,8 @@ public class EventServiceImpl implements EventService {
     private final VenueMapper venueMapper;
     private final EventSessionsMapper eventSessionsMapper;
     private final TicketTiersMapper ticketTiersMapper;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final ObjectMapper objectMapper;
 
     /**
      * 分页查询演出
@@ -101,7 +107,17 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public EventVO getEventDetail(Long eventId) {
-        EventVO eventVO = eventMapper.selectEventDetail(eventId);
+        //获取redis中缓存的演出信息
+        String eventDetail = stringRedisTemplate.opsForValue().get(RedisConstant.WARMUP_EVENT_KEY + eventId);
+        EventVO eventVO;
+        try {
+            //将json转成EventVO对象
+            eventVO = objectMapper.readValue(eventDetail, EventVO.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+
+//        EventVO eventVO = eventMapper.selectEventDetail(eventId);
         return eventVO;
     }
 

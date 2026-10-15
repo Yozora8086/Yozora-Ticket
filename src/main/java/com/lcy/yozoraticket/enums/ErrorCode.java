@@ -20,7 +20,9 @@ public enum ErrorCode {
 
     TICKET_SELL_ERROR(2004,"购票失败",HttpStatus.CONFLICT),
 
-    TICKET_NOT_YOU(3001,"当前电子票归属用户错误",HttpStatus.CONFLICT);
+    TICKET_NOT_YOU(3001,"当前电子票归属用户错误",HttpStatus.CONFLICT),
+
+    ORDER_STATUS_IS_PAY_OR_TIMEOUT(4001,"当前订单已支付或者已取消",HttpStatus.CONFLICT);
 
 
     private final Integer code;

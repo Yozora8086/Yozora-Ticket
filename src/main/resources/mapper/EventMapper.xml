@@ -104,4 +104,42 @@
                            ON es.event_session_id = tt.event_session_id
         WHERE e.event_id = #{eventId};
     </select>
+
+
+    <select id="selectEventDetailList" resultType="com.lcy.yozoraticket.vo.EventVO" resultMap="getEventDetail">
+        SELECT
+            e.event_id,
+            e.event_name,
+            e.event_introduction,
+            e.event_poster,
+            e.event_genre,
+            e.event_status,
+
+            es.event_session_id,
+            es.start_time,
+            es.sell_time,
+            es.venue_id,
+
+            v.venue_id,
+            v.venue_name,
+            v.venue_city,
+            v.venue_address,
+
+            tt.ticket_tiers_id,
+            tt.ticket_level,
+            tt.ticket_price,
+            tt.ticket_permit
+
+        FROM events e
+                 LEFT JOIN event_sessions es
+                           ON e.event_id = es.event_id
+                 LEFT JOIN venues v
+                           ON es.venue_id = v.venue_id
+                 LEFT JOIN ticket_tiers tt
+                           ON es.event_session_id = tt.event_session_id
+        WHERE e.event_id in
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+            </foreach>
+    </select>
 </mapper>

@@ -52,4 +52,10 @@
         SELECT event_session_id FROM event_sessions
         WHERE event_id = #{eventId}
     </select>
+
+    <select id="selectEventSessionIdByStatus" resultType="java.lang.Long">
+        SELECT event_id FROM event_sessions
+        WHERE
+        status = 0
+    </select>
 </mapper>

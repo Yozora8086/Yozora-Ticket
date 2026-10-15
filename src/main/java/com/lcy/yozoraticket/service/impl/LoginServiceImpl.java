@@ -37,7 +37,7 @@ public class LoginServiceImpl implements LoginService {
         //生成jwt的token
         String token = jwtUtil.createToken(userId,sessionId);
         //redis创建当前登录用户session
-        stringRedisTemplate.opsForValue().set(RedisConstant.LOGIN_SESSION_KEY + userId,sessionId,7, TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(RedisConstant.LOGIN_SESSION_KEY + userId,sessionId,24, TimeUnit.DAYS);
 
         return token;
     }

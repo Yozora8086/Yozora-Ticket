@@ -15,6 +15,6 @@
     </update>
 
     <update id="updateStatusCommit">
-        UPDATE payments SET status = #{paymentStatus} WHERE order_id = #{orderId} AND status = #{status}
+        UPDATE payments SET status = #{paymentStatus} WHERE order_id = #{orderId} AND status = #{nowStatus}
     </update>
 </mapper>

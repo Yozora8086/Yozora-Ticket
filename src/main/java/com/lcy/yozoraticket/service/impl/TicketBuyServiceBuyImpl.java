@@ -44,6 +44,8 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //获取当前时间
         LocalDateTime now = LocalDateTime.now();
 
+        System.err.println(sessionSellTimeQueryDTO);
+
         //判断当前演出是否可以购买
         if (now.isBefore(sessionSellTimeQueryDTO.getSellTime())) {
             throw new BusinessException(ErrorCode.TICKET_TIME_NOT_SELL);
@@ -108,18 +110,22 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //根据订单号查询订单
         Order order = orderMapper.selectOrderByOrderNo(orderNo,userId);
         //取消订单
-        orderMapper.updateOrderStatus(order.getOrderId(),orderStatus);
-        //获取当前订单买票数量
-        Byte ticketTotal = order.getTicketTotal();
-        //释放库存
-        ticketTiersMapper.updateUpdateLock(
-                order.getEventSessionId(),
-                order.getTicketLevel(),
-                ticketTotal
-        );
-
-        //数据库修改支付记录状态 设置状态已取消
-        paymentsMapper.updateStatus(order.getOrderId(),paymentStatus);
+        Integer rows = orderMapper.updateOrderStatus(order.getOrderId(), orderStatus);
+        if (rows == 1){
+            //获取当前订单买票数量
+            Byte ticketTotal = order.getTicketTotal();
+            //释放库存
+            ticketTiersMapper.updateUpdateLock(
+                    order.getEventSessionId(),
+                    order.getTicketLevel(),
+                    ticketTotal
+            );
+            //数据库修改支付记录状态 设置状态已取消
+            paymentsMapper.updateStatus(order.getOrderId(),paymentStatus);
+        } else {
+            //抛出 当前订单已支付或者已取消 异常
+           throw new BusinessException(ErrorCode.ORDER_STATUS_IS_PAY_OR_TIMEOUT);
+        }
     }
 
     /**
@@ -127,6 +133,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
      * @param orderNo
      */
     @Override
+    @Transactional
     public void buyCommitTicket(String orderNo) {
         //初始化状态值为已支付
         Byte orderStatus = 1;
@@ -138,18 +145,25 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
 
         //根据订单号查询订单
         Order order = orderMapper.selectOrderByOrderNo(orderNo,userId);
-        //支付订单
-        orderMapper.updateOrderStatus(order.getOrderId(),orderStatus);
-        //获取当前订单买票数量
-        Byte ticketTotal = order.getTicketTotal();
-        //释放库存
-        ticketTiersMapper.updateUpdateCommitLock(
-                order.getEventSessionId(),
-                order.getTicketLevel(),
-                ticketTotal
-        );
+        //支付订单 (返回影响的行数)
+        Integer rows = orderMapper.updateOrderStatus(order.getOrderId(),orderStatus);
+        //如果影响行数为1行，则代表状态未修改
+        if (rows == 1){
+            //获取当前订单买票数量
+            Byte ticketTotal = order.getTicketTotal();
+            //释放库存
+            ticketTiersMapper.updateUpdateCommitLock(
+                    order.getEventSessionId(),
+                    order.getTicketLevel(),
+                    ticketTotal
+            );
 
-        //数据库修改支付记录状态 设置状态已支付成功
-        paymentsMapper.updateStatusCommit(order.getOrderId(),paymentStatus,(byte) 0);
+            //数据库修改支付记录状态 设置状态已支付成功
+            paymentsMapper.updateStatusCommit(order.getOrderId(),paymentStatus,(byte) 0);
+        } else {
+            //状态已被修改，抛出异常
+            throw new BusinessException(ErrorCode.ORDER_STATUS_IS_PAY_OR_TIMEOUT);
+        }
+
     }
 }

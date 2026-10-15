@@ -43,4 +43,11 @@ public interface EventMapper {
      * @param eventDTO
      */
     void updateEvent(@Param("eventDTO") EventDTO eventDTO);
+
+    /**
+     * 根据演出id集合查询演出详情
+     * @param ids
+     * @return
+     */
+    List<EventVO> selectEventDetailList(List<Long> ids);
 }

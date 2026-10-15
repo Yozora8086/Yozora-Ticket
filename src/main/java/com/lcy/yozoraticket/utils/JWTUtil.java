@@ -31,7 +31,7 @@ public class JWTUtil {
                 .signWith(secretKey,Jwts.SIG.HS256)
                 .claims(claims)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 60 * 1000 * 60));
+                .expiration(new Date(System.currentTimeMillis() + 60 * 1000 * 60 * 24 * 24));
 
         String token = jwtBuilder.compact();
         return token;

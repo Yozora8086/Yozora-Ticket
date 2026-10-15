@@ -10,7 +10,7 @@
 
 
     <update id="updateOrderStatus">
-        update orders SET status = #{status} where order_id = #{orderId}
+        update orders SET status = #{status} where order_id = #{orderId} and status = 0
     </update>
 
 

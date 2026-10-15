@@ -46,4 +46,10 @@ public interface EventSessionsMapper {
      * @param eventSessionsDTO
      */
     void updateEventSession(EventSessionsDTO eventSessionsDTO);
+
+    /**
+     * 查询演出场次id(按照状态查询 status = 0)
+     * @return
+     */
+    List<Long> selectEventSessionIdByStatus();
 }
