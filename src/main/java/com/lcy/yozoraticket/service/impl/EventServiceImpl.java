@@ -117,7 +117,6 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException(e);
         }
 
-//        EventVO eventVO = eventMapper.selectEventDetail(eventId);
         return eventVO;
     }
 

@@ -1,7 +1,9 @@
 package com.lcy.yozoraticket.service;
 
+import com.lcy.yozoraticket.dto.EventOrderDTO;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
+import com.lcy.yozoraticket.vo.EventVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +22,17 @@ public class TicketSuperService {
      * @return
      */
     @Transactional
-    public Order buyTicket(TicketBuyDTO ticketBuyDTO){
+    public EventOrderDTO buyTicket(TicketBuyDTO ticketBuyDTO){
         //生成订单
-        Order order = ticketBuyService.buyTicket(ticketBuyDTO);
+        EventOrderDTO eventOrderDTO = ticketBuyService.buyTicket(ticketBuyDTO);
 
         //生成订单明细
-        orderItemService.orderItem(ticketBuyDTO, order);
+        orderItemService.orderItem(ticketBuyDTO, eventOrderDTO);
 
         //生成支付记录
-        paymentsService.Payments(ticketBuyDTO, order);
+        paymentsService.Payments(ticketBuyDTO, eventOrderDTO);
 
-        return order;
+        return eventOrderDTO;
     }
 
 }

@@ -24,6 +24,8 @@ public class EventSessionsVO {
     //演出场次票开售时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime sellTime;
+    //每场演出对应的状态
+    private Byte status;
     //演出场地对象
     private VenueVO venueVO;
     //每场演出所属的票级别

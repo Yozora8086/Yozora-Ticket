@@ -1,7 +1,9 @@
 package com.lcy.yozoraticket.service;
 
+import com.lcy.yozoraticket.dto.EventOrderDTO;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
+import com.lcy.yozoraticket.vo.EventVO;
 import com.lcy.yozoraticket.vo.OrderVO;
 
 public interface TicketBuyService {
@@ -10,7 +12,7 @@ public interface TicketBuyService {
      * @param ticketBuyDTO
      * @return
      */
-    Order buyTicket(TicketBuyDTO ticketBuyDTO);
+    EventOrderDTO buyTicket(TicketBuyDTO ticketBuyDTO);
 
 
     /**

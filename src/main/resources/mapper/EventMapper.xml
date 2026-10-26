@@ -53,6 +53,7 @@
             <result property="venueId" column="venue_id"/>
             <result property="startTime" column="start_time"/>
             <result property="sellTime" column="sell_time"/>
+            <result property="status" column="status"/>
 
             <association property="venueVO" javaType="com.lcy.yozoraticket.vo.VenueVO">
                 <id property="venueId" column="venue_id"/>
@@ -84,6 +85,7 @@
             es.start_time,
             es.sell_time,
             es.venue_id,
+            es.status,
 
             v.venue_id,
             v.venue_name,
@@ -119,6 +121,7 @@
             es.start_time,
             es.sell_time,
             es.venue_id,
+            es.status,
 
             v.venue_id,
             v.venue_name,

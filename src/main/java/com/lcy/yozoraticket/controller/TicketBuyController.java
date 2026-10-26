@@ -1,5 +1,6 @@
 package com.lcy.yozoraticket.controller;
 
+import com.lcy.yozoraticket.dto.EventOrderDTO;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
 import com.lcy.yozoraticket.entity.OrderItem;
@@ -31,14 +32,14 @@ public class TicketBuyController {
     public Result<OrderVO> ticketBuy(@RequestBody TicketBuyDTO ticketBuyDTO){
 
         //调用购票业务流程Service
-        Order order = ticketSuperService.buyTicket(ticketBuyDTO);
+        EventOrderDTO eventOrderDTO = ticketSuperService.buyTicket(ticketBuyDTO);
 
         //将实体类转VO
         OrderVO orderVO = OrderVO.builder()
-                .orderNo(order.getOrderNo())
-                .total(order.getTotal())
-                .status(order.getStatus())
-                .payCloseTime(order.getPayCloseTime())
+                .orderNo(eventOrderDTO.getOrderNo())
+                .total(ticketBuyDTO.getCount() * eventOrderDTO.getEventSessionNoListDTO().getTicketTiersVO().getTicketPrice())
+                .status(eventOrderDTO.getStatus())
+                .payCloseTime(eventOrderDTO.getPayCloseTime())
                 .build();
 
         return Result.success(orderVO,"购买成功");

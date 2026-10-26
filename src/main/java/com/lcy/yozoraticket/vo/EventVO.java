@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventVO {
+public class EventVO{
     //演出id
     private Long eventId;
     //演出名
