@@ -12,16 +12,6 @@ public class TicketController {
 
     private final TicketService ticketService;
 
-    /**
-     * 生成演出电子票
-     * @param orderNo
-     * @return
-     */
-    @PostMapping("/createTicket")
-    public Result ticket(@RequestParam String orderNo){
-        ticketService.getTicket(orderNo);
-        return Result.success("成功");
-    }
 
     /**
      * 核销演出电子票

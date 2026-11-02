@@ -1,5 +1,6 @@
 package com.lcy.yozoraticket.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lcy.yozoraticket.constant.RedisConstant;
@@ -40,6 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         //创建订单明细对象
         OrderItem orderItem = OrderItem.builder()
                 .orderId(eventOrderDTO.getOrderId())
+                .orderItemId(IdUtil.getSnowflakeNextId())
                 .ticketLevel(ticketBuyDTO.getTicketLevel())
                 .count(ticketBuyDTO.getCount())
                 .price(eventOrderDTO.getEventSessionNoListDTO().getTicketTiersVO().getTicketPrice())

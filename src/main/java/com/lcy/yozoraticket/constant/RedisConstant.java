@@ -17,4 +17,6 @@ public class RedisConstant {
     public static final String TICKET_ORDER_ITEM_KEY = "ticket:orderItem:";
     //支付记录缓存
     public static final String TICKET_PAYMENT_KEY = "ticket:payment:";
+    //电子票缓存
+    public static final String TICKET_ELECTRONIC_KEY = "ticket:electronic:";
 }

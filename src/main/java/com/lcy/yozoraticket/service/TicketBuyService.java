@@ -25,5 +25,5 @@ public interface TicketBuyService {
      * 用户提交购票订单
      * @param orderNo
      */
-    void buyCommitTicket(String orderNo);
+    boolean buyCommitTicket(String orderNo);
 }

@@ -8,6 +8,7 @@ import com.lcy.yozoraticket.service.OrderItemService;
 import com.lcy.yozoraticket.service.PaymentsService;
 import com.lcy.yozoraticket.service.TicketBuyService;
 import com.lcy.yozoraticket.service.TicketSuperService;
+import com.lcy.yozoraticket.service.impl.TicketSuccessSuperService;
 import com.lcy.yozoraticket.utils.Result;
 import com.lcy.yozoraticket.vo.OrderItemVO;
 import com.lcy.yozoraticket.vo.OrderVO;
@@ -22,6 +23,8 @@ public class TicketBuyController {
     private final TicketSuperService ticketSuperService;
 
     private final TicketBuyService ticketBuyService;
+
+    private final TicketSuccessSuperService ticketSuccessSuperService;
 
     /**
      * 用户购票
@@ -63,7 +66,7 @@ public class TicketBuyController {
      */
     @PutMapping("/commitOrder")
     public Result ticketBuyCommit(@RequestParam String orderNo){
-        ticketBuyService.buyCommitTicket(orderNo);
+        ticketSuccessSuperService.success(orderNo);
         return Result.success("支付成功");
     }
 
