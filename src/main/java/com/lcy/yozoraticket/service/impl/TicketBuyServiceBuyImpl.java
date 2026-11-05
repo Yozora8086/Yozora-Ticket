@@ -22,10 +22,13 @@ import com.lcy.yozoraticket.vo.EventVO;
 import com.lcy.yozoraticket.vo.TicketTiersVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +44,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     private final OrderTimeOutService orderTimeOutService;
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
+    private final DefaultRedisScript<String> ticketBuyScript;
 
     /**
      * 用户购票
@@ -50,6 +54,17 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     @Transactional
     @Override
     public EventOrderDTO buyTicket(TicketBuyDTO ticketBuyDTO) {
+        //将购票所需参数进行序列化
+        String ticketBuyDTOJson;
+        try {
+            ticketBuyDTOJson = objectMapper.writeValueAsString(ticketBuyDTO);
+        } catch (JsonProcessingException e){
+            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
+        }
+
+        //获取当前userId
+        Long userId = BaseContext.getCurrentId();
+
         //用户购票等级
         Byte ticketLevel = ticketBuyDTO.getTicketLevel();
         //用户购买的哪一场的票
@@ -74,72 +89,42 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
             throw new BusinessException(ErrorCode.NOT_TICKET);
         }
 
-        //查询用户购票的等级所对应的价格
-        Object object = stringRedisTemplate.opsForHash().get(
-                RedisConstant.WARMUP_TICKET_PERMIT_KEY + eventSessionId,
-                "ticketPrice" + ":" + ticketLevel.toString()
-        );
-
-        //单张票价
-        Integer ticketPrice = Integer.valueOf((String) object);
-
-        //订单总价
-        Integer total = ticketPrice * ticketBuyDTO.getCount();
-
-
-        //获取当前userId
-        Long userId = BaseContext.getCurrentId();
-        OrderRedisDTO orderRedisDTO = OrderRedisDTO.builder()
-                .eventSessionId(eventSessionId)
-                .ticketLevel(ticketLevel)
-                .total(total)
-                .payCloseTime(LocalDateTime.now().plusMinutes(15))
-                .build();
-
-        //获取演出详情JSON
-        String eventDetail = stringRedisTemplate.opsForValue().get(
-                RedisConstant.WARMUP_EVENT_KEY + ticketBuyDTO.getEventId().toString()
-        );
-
-        //将演出信息JSON反序列化的对象
-        EventVO event;
-        try {
-            event = objectMapper.readValue(eventDetail, EventVO.class);
-        } catch (JsonProcessingException e){
-            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
-        }
-
         //创建订单
         Order order = Order.builder()
                 .orderId(IdUtil.getSnowflakeNextId())
                 .orderNo(System.currentTimeMillis() + String.format("%08d", ThreadLocalRandom.current().nextInt(100_000_000)))
                 .eventSessionId(eventSessionId)
                 .userId(userId)
-                .total(total)
                 .ticketTotal(ticketBuyDTO.getCount())
                 .status((byte) 0)
                 .ticketLevel(ticketLevel)
                 .payCloseTime(LocalDateTime.now().plusMinutes(15))
                 .build();
 
+        //将订单空对象序列化为JSON
         String orderJson;
-
-        //序列化订单对象
         try{
             orderJson = objectMapper.writeValueAsString(order);
-        } catch (JsonProcessingException e)
-        {
+        } catch (JsonProcessingException e){
             throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
         }
 
-        //将当前订单信息缓存到redis
-        stringRedisTemplate.opsForValue().set(
-                RedisConstant.TICKET_ORDER_KEY + order.getOrderNo(),
+        //执行购票lua脚本,并接收演出信息参数
+        String eventJson = stringRedisTemplate.execute(
+                ticketBuyScript,
+                Collections.emptyList(),
+                ticketBuyDTO.getEventId().toString(),
                 orderJson,
-                7,
-                TimeUnit.DAYS
+                ticketBuyDTOJson
         );
 
+        //将演出信息Json反序列化为对象
+        EventVO event;
+        try{
+            event = objectMapper.readValue(eventJson, EventVO.class);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
+        }
 
         //redis预扣库存票数
         stringRedisTemplate.opsForHash().increment(
@@ -153,6 +138,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
                 RedisConstant.TICKET_LOCK_KEY + eventSessionId.toString() + ":" + ticketLevel.toString(),
                 ticketBuyDTO.getCount()
         );
+
 
 
         EventSessionsVO eventSessionsVO = new EventSessionsVO();

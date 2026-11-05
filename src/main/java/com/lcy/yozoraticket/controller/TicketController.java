@@ -15,12 +15,12 @@ public class TicketController {
 
     /**
      * 核销演出电子票
-     * @param ticketCode
+     * @param ticketId
      * @return
      */
     @PutMapping("/useTicket")
-    public Result useTicket(@RequestParam String ticketCode){
-        ticketService.useTicket(ticketCode);
+    public Result useTicket(@RequestParam Long ticketId){
+        ticketService.useTicket(ticketId);
         return Result.success("核销成功");
     }
 }

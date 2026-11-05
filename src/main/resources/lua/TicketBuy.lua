@@ -3,3 +3,43 @@
 --- Created by 63959.
 --- DateTime: 2026/10/22 9:03
 ---
+
+--演出id
+local eventId = tonumber(ARGV[1])
+--订单信息Json
+local orderJson = ARGV[2]
+--购票参数信息
+local ticketBuyDTOJson = ARGV[3]
+
+--演出信息key
+local warmupEventKey = 'event:detail:' .. eventId
+--获取当前演出信息
+local eventMessageJson = redis.call("GET", warmupEventKey)
+--反序列化当前演出信息
+local eventMessage = cjson.decode(eventMessageJson)
+--反序列化订单信息
+local order = cjson.decode(orderJson)
+--反序列化购票参数信息
+local ticketBuyDTO = cjson.decode(ticketBuyDTOJson)
+--场次所剩余的票数Key
+local warmupTicketPermitKey = 'event:permit:' .. ticketBuyDTO.eventSessionId
+--获取用户购票的等级所对应的价格
+local ticketPrice = tonumber(redis.call("HGET", warmupTicketPermitKey,"ticketPrice:" .. ticketBuyDTO.ticketLevel))
+--计算总价并赋值给对象
+local total = ticketBuyDTO.count * ticketPrice
+order.total = total
+--将订单序列化为json
+orderJson = cjson.encode(order)
+--订单缓存key
+local ticketOrderKey = 'ticket:order:'
+--缓存订单信息
+redis.call("SET",ticketOrderKey .. order.orderNo,orderJson)
+--预扣库存
+redis.call("HINCRBY", warmupTicketPermitKey,"ticketPermit" .. ticketBuyDTO.ticketLevel,- ticketBuyDTO.count)
+--冻结所购买的票
+local ticketLockKey = 'ticket:lock:'
+redis.call("INCRBY",ticketLockKey .. ticketBuyDTO.eventSessionId,ticketBuyDTO.count)
+--返回当前购买的演出信息
+return eventMessageJson
+
+

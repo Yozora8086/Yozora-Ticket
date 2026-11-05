@@ -94,21 +94,41 @@ public class TicketServiceImpl implements TicketService {
 
     /**
      * 核销演出电子票
-     * @param ticketCode
+     * @param ticketId
      */
     @Override
-    public void useTicket(String ticketCode) {
-       Long getUserId = orderMapper.selectOrderByTicketCode(ticketCode);
-        System.err.println("1--" + getUserId);
+    public void useTicket(Long ticketId) {
+        //从redis缓存中获取电子票的缓存信息
+        String electronicTicketJson = stringRedisTemplate.opsForValue().get(
+                RedisConstant.TICKET_ELECTRONIC_KEY + ticketId.toString()
+                );
 
-       //判断当前电子票是否属于该用户
-        Long userId = BaseContext.getCurrentId();
-        System.err.println("2--" + userId);
-        if (!userId.equals(getUserId)){
-            throw new BusinessException(ErrorCode.TICKET_NOT_YOU);
+        //将电子票信息Json反序列化成电子票对象
+        Ticket ticket;
+        try {
+            ticket = objectMapper.readValue(electronicTicketJson, Ticket.class);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
         }
-        //修改电子票核销状态 修改为已核销
-        ticketsMapper.updateStatus(ticketCode);
+
+        //修改电子票核销状态和核销时间
+        ticket.setStatus((byte) 1);
+        ticket.setVerifiedTime(LocalDateTime.now());
+
+        //将电子票对象序列化为Json
+        try{
+            electronicTicketJson = objectMapper.writeValueAsString(ticket);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
+        }
+
+        //将修改后的电子票数据重新缓存到redis里
+        stringRedisTemplate.opsForValue().set(
+                RedisConstant.TICKET_ELECTRONIC_KEY + ticketId.toString(),
+                electronicTicketJson,
+                7,
+                TimeUnit.DAYS
+        );
 
     }
 }

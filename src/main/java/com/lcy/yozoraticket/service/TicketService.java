@@ -9,7 +9,7 @@ public interface TicketService {
 
     /**
      * 核销演出电子票
-     * @param orderNo
+     * @param ticketId
      */
-    void useTicket(String orderNo);
+    void useTicket(Long ticketId);
 }
