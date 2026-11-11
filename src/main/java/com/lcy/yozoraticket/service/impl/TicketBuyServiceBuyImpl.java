@@ -7,7 +7,6 @@ import com.lcy.yozoraticket.constant.RedisConstant;
 import com.lcy.yozoraticket.context.BaseContext;
 import com.lcy.yozoraticket.dto.EventOrderDTO;
 import com.lcy.yozoraticket.dto.EventSessionNoListDTO;
-import com.lcy.yozoraticket.dto.RedisDTO.OrderRedisDTO;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.dto.query.EventSessionSellTimeQueryDTO;
 import com.lcy.yozoraticket.entity.Order;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,6 +45,10 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
     private final DefaultRedisScript<String> ticketBuyScript;
+    private final DefaultRedisScript<Long> commitOrBackTicketScript;
+
+    //时间戳格式
+    private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 用户购票
@@ -126,20 +130,6 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
             throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
         }
 
-        //redis预扣库存票数
-        stringRedisTemplate.opsForHash().increment(
-                RedisConstant.WARMUP_TICKET_PERMIT_KEY + eventSessionId.toString(),
-                "ticketPermit" + ticketBuyDTO.getTicketLevel().toString(),
-                - ticketBuyDTO.getCount()
-        );
-
-        //冻结已下单的票数
-        stringRedisTemplate.opsForValue().increment(
-                RedisConstant.TICKET_LOCK_KEY + eventSessionId.toString() + ":" + ticketLevel.toString(),
-                ticketBuyDTO.getCount()
-        );
-
-
 
         EventSessionsVO eventSessionsVO = new EventSessionsVO();
         TicketTiersVO ticketTiersVO = new TicketTiersVO();
@@ -195,86 +185,25 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //获取当前用户id
         Long userId = BaseContext.getCurrentId();
 
-        //获取redis中缓存的订单信息
-        String orderJson = stringRedisTemplate.opsForValue().get(
-                RedisConstant.TICKET_ORDER_KEY + orderNo
+        //执行取消订单lua脚本，并返回当前订单是否属于当前用户
+        Long result = stringRedisTemplate.execute(
+                commitOrBackTicketScript,
+                List.of(
+                        RedisConstant.TICKET_ORDER_KEY,
+                        RedisConstant.TICKET_PAYMENT_KEY,
+                        RedisConstant.TICKET_LOCK_KEY,
+                        RedisConstant.WARMUP_TICKET_PERMIT_KEY
+                ),
+                orderNo,
+                userId.toString(),
+                orderStatus.toString(),
+                paymentStatus.toString()
         );
 
-        Order order;
-        //将订单信息反序列化成order对象
-        try {
-            order = objectMapper.readValue(orderJson, Order.class);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
-        }
-
-        //判断当前订单是否属于当前用户
-        if (userId != order.getUserId()) {
+        //不属于则抛出异常
+        if (result == 0) {
             throw new BusinessException(ErrorCode.ORDER_NOT_YOU);
         }
-
-
-        //修改当前订单状态
-        order.setStatus(orderStatus);
-
-        //将当前order对象序列化为json
-        try {
-            orderJson = objectMapper.writeValueAsString(order);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
-        }
-
-        //redis缓存覆盖新的的订单状态
-        stringRedisTemplate.opsForValue().set(
-                RedisConstant.TICKET_ORDER_KEY + orderNo,
-                orderJson,
-                7,
-                TimeUnit.DAYS
-        );
-
-        //获取redis缓存的支付记录
-        String paymentJson = stringRedisTemplate.opsForValue().get(
-                RedisConstant.TICKET_PAYMENT_KEY + order.getOrderId().toString()
-        );
-
-        //将json反序列化为Payments对象
-        Payments payments;
-        try {
-            payments = objectMapper.readValue(paymentJson, Payments.class);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
-        }
-
-        //设置支付记录状态
-        payments.setStatus(paymentStatus);
-
-        //将支付记录对象序列化为json
-        try {
-            paymentJson = objectMapper.writeValueAsString(payments);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
-        }
-
-        //redis缓存覆盖新的的支付记录状态
-        stringRedisTemplate.opsForValue().set(
-                RedisConstant.TICKET_PAYMENT_KEY + order.getOrderId().toString(),
-                paymentJson,
-                7,
-                TimeUnit.DAYS
-        );
-
-        //redis释放预扣库存
-        stringRedisTemplate.opsForValue().decrement(
-                RedisConstant.TICKET_LOCK_KEY + order.getEventSessionId().toString() + order.getTicketLevel(),
-                order.getTicketTotal()
-        );
-
-        //取消的订单的票数回到库存
-        stringRedisTemplate.opsForHash().increment(
-                RedisConstant.WARMUP_TICKET_PERMIT_KEY + order.getEventSessionId().toString(),
-                "ticketPermit" + order.getTicketLevel().toString(),
-                order.getTicketTotal()
-        );
     }
 
     /**
@@ -289,84 +218,32 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //初始化状态值为支付成功
         Byte paymentStatus = 1;
 
+        //获取当前时间，并按照规定格式返回
+        String time = LocalDateTime.now().format(FORMATTER);
+
         //获取当前用户id
         Long userId = BaseContext.getCurrentId();
 
-
-        //获取redis中缓存的订单信息
-        String orderJson = stringRedisTemplate.opsForValue().get(
-                RedisConstant.TICKET_ORDER_KEY + orderNo
+        //执行提交成功订单lua脚本，并返回当前订单是否属于当前用户
+        Long result = stringRedisTemplate.execute(
+                commitOrBackTicketScript,
+                List.of(
+                        RedisConstant.TICKET_ORDER_KEY,
+                        RedisConstant.TICKET_PAYMENT_KEY,
+                        RedisConstant.TICKET_LOCK_KEY,
+                        RedisConstant.WARMUP_TICKET_PERMIT_KEY
+                ),
+                orderNo,
+                userId.toString(),
+                orderStatus.toString(),
+                paymentStatus.toString(),
+                time
         );
 
-        Order order;
-        //将订单信息反序列化成order对象
-        try {
-            order = objectMapper.readValue(orderJson, Order.class);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
-        }
-
-        //判断当前订单是否属于当前用户
-        if (userId != order.getUserId()) {
+        //不属于则抛出异常
+        if (result == 0) {
             throw new BusinessException(ErrorCode.ORDER_NOT_YOU);
         }
-
-
-        //修改当前订单状态
-        order.setStatus(orderStatus);
-
-        //将当前order对象序列化为json
-        try {
-            orderJson = objectMapper.writeValueAsString(order);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
-        }
-
-        //redis缓存覆盖新的的订单状态
-        stringRedisTemplate.opsForValue().set(
-                RedisConstant.TICKET_ORDER_KEY + orderNo,
-                orderJson,
-                7,
-                TimeUnit.DAYS
-        );
-
-        //获取redis缓存的支付记录
-        String paymentJson = stringRedisTemplate.opsForValue().get(
-                RedisConstant.TICKET_PAYMENT_KEY + order.getOrderId().toString()
-        );
-
-        //将json反序列化为Payments对象
-        Payments payments;
-        try {
-            payments = objectMapper.readValue(paymentJson, Payments.class);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_DESERIALIZATION_ERROR);
-        }
-
-        //设置支付记录状态和支付时间
-        payments.setStatus(paymentStatus);
-        payments.setPaySuccessTime(LocalDateTime.now());
-
-        //将支付记录对象序列化为json
-        try {
-            paymentJson = objectMapper.writeValueAsString(payments);
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(ErrorCode.JSON_SERIALIZATION_ERROR);
-        }
-
-        //redis缓存覆盖新的的支付记录状态
-        stringRedisTemplate.opsForValue().set(
-                RedisConstant.TICKET_PAYMENT_KEY + order.getOrderId().toString(),
-                paymentJson,
-                7,
-                TimeUnit.DAYS
-        );
-
-        //redis释放预扣库存
-        stringRedisTemplate.opsForValue().decrement(
-                RedisConstant.TICKET_LOCK_KEY + order.getEventSessionId().toString() + ":" + order.getTicketLevel(),
-                order.getTicketTotal()
-        );
 
         return true;
 

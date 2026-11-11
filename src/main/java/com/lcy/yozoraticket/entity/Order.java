@@ -1,6 +1,8 @@
 package com.lcy.yozoraticket.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Order {
+    @JsonSerialize(using = ToStringSerializer.class)
     //订单id
     private Long orderId;
     //演出id

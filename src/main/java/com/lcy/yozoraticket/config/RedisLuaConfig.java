@@ -22,5 +22,19 @@ public class RedisLuaConfig {
         return script;
     }
 
+    /**
+     * 注册退票lua脚本
+     * @return
+     */
+    @Bean
+    public DefaultRedisScript<Long> commitOrBackTicketScript(){
+
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setLocation(new ClassPathResource("/lua/CommitOrBackTicket.lua"));
+        script.setResultType(Long.class);
+
+        return script;
+    }
+
 
 }

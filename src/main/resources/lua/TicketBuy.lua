@@ -38,7 +38,7 @@ redis.call("SET",ticketOrderKey .. order.orderNo,orderJson)
 redis.call("HINCRBY", warmupTicketPermitKey,"ticketPermit" .. ticketBuyDTO.ticketLevel,- ticketBuyDTO.count)
 --冻结所购买的票
 local ticketLockKey = 'ticket:lock:'
-redis.call("INCRBY",ticketLockKey .. ticketBuyDTO.eventSessionId,ticketBuyDTO.count)
+redis.call("INCRBY",ticketLockKey .. ticketBuyDTO.eventSessionId .. order.ticketLevel,ticketBuyDTO.count)
 --返回当前购买的演出信息
 return eventMessageJson
 
