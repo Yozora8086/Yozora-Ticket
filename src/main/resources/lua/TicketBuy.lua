@@ -32,10 +32,15 @@ order.total = total
 orderJson = cjson.encode(order)
 --订单缓存key
 local ticketOrderKey = 'ticket:order:'
+--校验票库存数量
+local count = tonumber(redis.call("HGET", warmupTicketPermitKey, "ticketPermit:" .. ticketBuyDTO.ticketLevel))
+if count < ticketBuyDTO.count then
+    return '-1'
+end
 --缓存订单信息
 redis.call("SET",ticketOrderKey .. order.orderNo,orderJson)
 --预扣库存
-redis.call("HINCRBY", warmupTicketPermitKey,"ticketPermit" .. ticketBuyDTO.ticketLevel,- ticketBuyDTO.count)
+redis.call("HINCRBY", warmupTicketPermitKey,"ticketPermit:" .. ticketBuyDTO.ticketLevel,- ticketBuyDTO.count)
 --冻结所购买的票
 local ticketLockKey = 'ticket:lock:'
 redis.call("INCRBY",ticketLockKey .. ticketBuyDTO.eventSessionId .. order.ticketLevel,ticketBuyDTO.count)

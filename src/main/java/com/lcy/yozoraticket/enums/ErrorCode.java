@@ -20,11 +20,17 @@ public enum ErrorCode {
 
     TICKET_SELL_ERROR(2004,"购票失败",HttpStatus.CONFLICT),
 
+    TICKET_LOCK_ERROR(2005,"取消冻结的票数量大于被冻结的票数量",HttpStatus.CONFLICT),
+
+    TICKET_NOT_HAS(2006,"当前演出所属的票档不存在",HttpStatus.CONFLICT),
+
     TICKET_NOT_YOU(3001,"当前电子票归属用户错误",HttpStatus.CONFLICT),
 
     ORDER_NOT_YOU(3002,"当前订单归属用户错误",HttpStatus.CONFLICT),
 
     ORDER_STATUS_IS_PAY_OR_TIMEOUT(4001,"当前订单已支付或者已取消",HttpStatus.CONFLICT),
+
+    ORDER_PAY_TIME_CLOSE(4002,"当前订单已超时",HttpStatus.CONFLICT),
 
     JSON_DESERIALIZATION_ERROR(5001,"Json反序列化错误",HttpStatus.CONFLICT),
 

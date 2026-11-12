@@ -33,6 +33,13 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    public static <T> Result<T> error(Integer code,String message){
+        Result<T> result = new Result<T>();
+        result.code = code;
+        result.message = message;
+        return result;
+    }
+
 
 
 }

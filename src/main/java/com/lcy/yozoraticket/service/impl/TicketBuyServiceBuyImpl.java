@@ -75,6 +75,11 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         Long eventSessionId = ticketBuyDTO.getEventSessionId();
         //查询当前演出开售时间,并返回演出状态对象
         EventSessionSellTimeQueryDTO sessionSellTimeQueryDTO = eventSessionsMapper.selectStartSellTime(eventSessionId,ticketLevel);
+        //返回空则为当前票档不存在，抛出异常
+        if (sessionSellTimeQueryDTO == null){
+            throw new BusinessException(ErrorCode.TICKET_NOT_HAS);
+        }
+
         //获取当前时间
         LocalDateTime now = LocalDateTime.now();
 
@@ -121,6 +126,11 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
                 orderJson,
                 ticketBuyDTOJson
         );
+
+        //如果lua脚本返回字符串-1则是抛出票库存不足异常
+        if (eventJson.equals("-1")){
+            throw new BusinessException(ErrorCode.NOT_TICKET);
+        }
 
         //将演出信息Json反序列化为对象
         EventVO event;
@@ -243,6 +253,14 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         //不属于则抛出异常
         if (result == 0) {
             throw new BusinessException(ErrorCode.ORDER_NOT_YOU);
+        }
+        //校验取消冻结的票数量大于被冻结的票数量,小于则抛出异常
+        if (result == -1) {
+            throw new BusinessException(ErrorCode.TICKET_LOCK_ERROR);
+        }
+        //校验当前订单是否已经超过可支付时间窗口,超过则抛出异常
+        if (result == -2){
+            throw new BusinessException(ErrorCode.ORDER_PAY_TIME_CLOSE);
         }
 
         return true;

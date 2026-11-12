@@ -88,11 +88,16 @@ public class EventCacheServiceImpl implements EventCacheService {
                             "ticketPrice" + ":" + ticketTiersVO.getTicketLevel().toString(),
                             ticketTiersVO.getTicketPrice().toString()
                     );
-                    //将演出场次票的票存量缓存到redis
-                    stringRedisTemplate.opsForHash().putAll(
-                            RedisConstant.WARMUP_TICKET_PERMIT_KEY + eventSessionsVO.getEventSessionId(),
-                            map
-                    );
+
+                    //遍历map所有的票档数量
+                    for (Map.Entry<String, String> stringStringEntry : map.entrySet()) {
+                        //将演出场次票的票存量缓存到redis
+                        stringRedisTemplate.opsForHash().putIfAbsent(
+                                RedisConstant.WARMUP_TICKET_PERMIT_KEY + eventSessionsVO.getEventSessionId(),
+                                stringStringEntry.getKey(),
+                                stringStringEntry.getValue()
+                        );
+                    }
                     //设置数据过期时间
                     stringRedisTemplate.expire(
                             RedisConstant.WARMUP_TICKET_PERMIT_KEY + eventSessionsVO.getEventSessionId(),

@@ -4,6 +4,8 @@
 --- DateTime: 2026/11/10 9:49
 ---
 
+--返回错误码 0：当前订单不属于当前用户 | -1：取消冻结的票数量大于被冻结的票  | -2:超过订单可支付时间  | 1：成功
+
 --订单号
 local orderNo = ARGV[1]
 --当前用户id
@@ -29,6 +31,11 @@ if userId ~= order.userId then
     return 0
 end
 
+--判断当前订单是否已过可支付时间
+if time ~= nil and order.payCloseTime <= time then
+   return -2
+end
+
 --将修改后的订单覆盖掉
 order.status = orderStatus
 orderJson = cjson.encode(order)
@@ -51,7 +58,14 @@ redis.call("SET",ticketPaymentKey,paymentJson)
 
 --redis释放预扣库存
 ticketLockKey = ticketLockKey .. tostring(order.eventSessionId) ..  tostring(order.ticketLevel)
-redis.call("INCRBY",ticketLockKey,-order.ticketTotal)
+--校验取消冻结的票数量大于被冻结的票数量
+local count = tonumber(redis.call("GET", ticketLockKey))
+if count >= order.ticketTotal then
+    redis.call("INCRBY",ticketLockKey,-order.ticketTotal)
+else
+    return -1
+end
+
 
 --取消的订单的票数回到库存
 warmupTicketPermitKey = warmupTicketPermitKey .. tostring(order.eventSessionId)
