@@ -8,6 +8,8 @@
                 (#{item.eventSessionId},#{item.ticketLevel},#{item.ticketPrice},#{item.ticketAll},#{item.ticketPermit},0)
             </foreach>
     </insert>
+
+
     <update id="buyTicketSuccess">
         update ticket_tiers set
             ticket_permit = ticket_permit - #{ticketBuyDTO.count},

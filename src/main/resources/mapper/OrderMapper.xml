@@ -3,9 +3,9 @@
 <mapper namespace="com.lcy.yozoraticket.mapper.OrderMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyColumn="order_id" keyProperty="orderId">
-        insert into orders (event_session_id,order_no,user_id,ticket_level,total,ticket_total,status,pay_close_time)
+        insert into orders (order_id,event_session_id,order_no,user_id,ticket_level,total,ticket_total,status,pay_close_time)
             values
-        (#{eventSessionId},#{orderNo},#{userId},#{ticketLevel},#{total},#{ticketTotal},#{status},#{payCloseTime})
+        (#{orderId},#{eventSessionId},#{orderNo},#{userId},#{ticketLevel},#{total},#{ticketTotal},#{status},#{payCloseTime})
     </insert>
 
 

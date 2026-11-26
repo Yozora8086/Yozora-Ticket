@@ -10,6 +10,12 @@ spring:
       host: localhost
       port: 6379
       database: DB2
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
+    virtual-host: /YOZORA_TICKET
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml

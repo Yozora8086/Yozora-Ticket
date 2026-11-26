@@ -4,7 +4,7 @@
 --- DateTime: 2026/11/10 9:49
 ---
 
---返回错误码 0：当前订单不属于当前用户 | -1：取消冻结的票数量大于被冻结的票  | -2:超过订单可支付时间  | 1：成功
+--返回错误码 0：当前订单不属于当前用户 | -1：取消冻结的票数量大于被冻结的票  | -2:超过订单可支付时间  | -3:重复操作  | 1：成功
 
 --订单号
 local orderNo = ARGV[1]
@@ -31,9 +31,24 @@ if userId ~= order.userId then
     return 0
 end
 
+--判断当前订单状态是否可修改
+if order.status == 1 or order.status == 2 then
+    return -3
+end
+
 --判断当前订单是否已过可支付时间
 if time ~= nil and order.payCloseTime <= time then
    return -2
+end
+
+--redis释放预扣库存
+ticketLockKey = ticketLockKey .. tostring(order.eventSessionId) ..  tostring(order.ticketLevel)
+--校验取消冻结的票数量大于被冻结的票数量
+local count = tonumber(redis.call("GET", ticketLockKey))
+if count >= order.ticketTotal then
+    redis.call("INCRBY",ticketLockKey,-order.ticketTotal)
+else
+    return -1
 end
 
 --将修改后的订单覆盖掉
@@ -56,20 +71,13 @@ end
 paymentJson = cjson.encode(payment)
 redis.call("SET",ticketPaymentKey,paymentJson)
 
---redis释放预扣库存
-ticketLockKey = ticketLockKey .. tostring(order.eventSessionId) ..  tostring(order.ticketLevel)
---校验取消冻结的票数量大于被冻结的票数量
-local count = tonumber(redis.call("GET", ticketLockKey))
-if count >= order.ticketTotal then
-    redis.call("INCRBY",ticketLockKey,-order.ticketTotal)
-else
-    return -1
-end
-
 
 --取消的订单的票数回到库存
 warmupTicketPermitKey = warmupTicketPermitKey .. tostring(order.eventSessionId)
-redis.call("HINCRBY",warmupTicketPermitKey,"ticketPermit" .. order.ticketLevel,order.ticketTotal)
+--判断当前操作是否为退票操作
+if order.status == 2 then
+    redis.call("HINCRBY",warmupTicketPermitKey,"ticketPermit:" .. order.ticketLevel,order.ticketTotal)
+end
 
 --操作成功返回1
 return 1

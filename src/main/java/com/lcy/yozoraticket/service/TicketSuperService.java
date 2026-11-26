@@ -3,6 +3,7 @@ package com.lcy.yozoraticket.service;
 import com.lcy.yozoraticket.dto.EventOrderDTO;
 import com.lcy.yozoraticket.dto.TicketBuyDTO;
 import com.lcy.yozoraticket.entity.Order;
+import com.lcy.yozoraticket.mq.OrderMessageProducer;
 import com.lcy.yozoraticket.vo.EventVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class TicketSuperService {
     private final TicketBuyService ticketBuyService;
     private final OrderItemService orderItemService;
     private final PaymentsService paymentsService;
+    private final OrderMessageProducer orderMessageProducer;
 
     /**
      * 用户购票
@@ -31,6 +33,9 @@ public class TicketSuperService {
 
         //生成支付记录
         paymentsService.Payments(ticketBuyDTO, eventOrderDTO);
+
+        //组装购票所依赖的实体类
+        orderMessageProducer.sendCreated(eventOrderDTO.getOrderNo());
 
         return eventOrderDTO;
     }

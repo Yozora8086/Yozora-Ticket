@@ -20,6 +20,7 @@ import com.lcy.yozoraticket.vo.EventSessionsVO;
 import com.lcy.yozoraticket.vo.EventVO;
 import com.lcy.yozoraticket.vo.TicketTiersVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     private final DefaultRedisScript<String> ticketBuyScript;
     private final DefaultRedisScript<Long> commitOrBackTicketScript;
 
+
     //时间戳格式
     private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -58,6 +60,12 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
     @Transactional
     @Override
     public EventOrderDTO buyTicket(TicketBuyDTO ticketBuyDTO) {
+
+        //判断当前用户购票是否超出最大限制
+        if (ticketBuyDTO.getCount() > 5 || ticketBuyDTO.getCount() <= 0) {
+            throw new BusinessException(ErrorCode.TICKET_COUNT_EXCEPTION);
+        }
+
         //将购票所需参数进行序列化
         String ticketBuyDTOJson;
         try {
@@ -262,6 +270,12 @@ public class TicketBuyServiceBuyImpl implements TicketBuyService {
         if (result == -2){
             throw new BusinessException(ErrorCode.ORDER_PAY_TIME_CLOSE);
         }
+        //判断当前订单状态是否可修改
+        if (result == -3){
+            throw new BusinessException(ErrorCode.ORDER_STATUS_CANT_UPDATE);
+        }
+
+
 
         return true;
 

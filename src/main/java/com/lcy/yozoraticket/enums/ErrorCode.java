@@ -28,13 +28,21 @@ public enum ErrorCode {
 
     ORDER_NOT_YOU(3002,"当前订单归属用户错误",HttpStatus.CONFLICT),
 
+    TICKET_COUNT_EXCEPTION(3003,"票数购买数量不合法",HttpStatus.CONFLICT),
+
     ORDER_STATUS_IS_PAY_OR_TIMEOUT(4001,"当前订单已支付或者已取消",HttpStatus.CONFLICT),
 
     ORDER_PAY_TIME_CLOSE(4002,"当前订单已超时",HttpStatus.CONFLICT),
 
+    ORDER_STATUS_CANT_UPDATE(4003,"当前订单状态不可修改",HttpStatus.CONFLICT),
+
     JSON_DESERIALIZATION_ERROR(5001,"Json反序列化错误",HttpStatus.CONFLICT),
 
-    JSON_SERIALIZATION_ERROR(5001,"Json序列化错误",HttpStatus.CONFLICT);
+    JSON_SERIALIZATION_ERROR(5001,"Json序列化错误",HttpStatus.CONFLICT),
+
+    QUEUE_ORDER_EXIST_ERROR(6001,"当前id已存在",HttpStatus.CONFLICT),
+
+    QUEUE_UPDATE_DATABASE_ERROR(6002,"更新数据库失败",HttpStatus.CONFLICT);
 
 
     private final Integer code;
